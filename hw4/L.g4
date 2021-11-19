@@ -14,7 +14,7 @@ rvalue : e
        | array
        ;
 
-array : '[' (rvalue ',')* rvalue ']';
+array : '[' ((rvalue ',')* rvalue)? ']';
      
 e : '-' e 
   | <assoc=right> e pow e 
