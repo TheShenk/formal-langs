@@ -1,0 +1,130 @@
+\documentclass[12pt,a4paper]{article}%
+\usepackage{amsthm}
+\usepackage{amsmath}%
+\usepackage{amsfonts}%
+\usepackage{amssymb}%
+\usepackage{graphicx}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[linguistics]{forest}
+%-------------------------------------------
+\usepackage{ulem}
+%-------------------------------------------
+\setlength{\textwidth}{7.0in}
+\setlength{\oddsidemargin}{-0.35in}
+\setlength{\topmargin}{-0.5in}
+\setlength{\textheight}{9.0in}
+\setlength{\parindent}{0.3in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{task}[theorem]{Задача}
+\addto\captionsrussian{\renewcommand*{\proofname}{Решение}}
+
+
+\newcommand{\abovemath}[2]{\ensuremath{\stackrel{\text{#1}}{#2}}}
+\newcommand{\aboveeq}[1]{\abovemath{#1}{=}}
+\newcommand\bydef{\aboveeq{def}}
+
+\graphicspath{{./}}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\begin{document}
+
+
+\begin{flushright}
+\textbf{Удод Максим \\
+\today}
+\end{flushright}
+
+\begin{center}
+\textbf{Формальные языки\\
+HW04} \\
+\end{center}
+
+\task {Построить LL(1) таблицу по грамматике списков
+    $$
+    \begin{array}{cccccccccc}
+       &S & \rightarrow & L S' \\
+       &S'& \rightarrow & ; L S' & \mid & \varepsilon \\
+       &L & \rightarrow &  [S] & \mid & a
+    \end{array}
+    $$
+}
+\proof {
+
+    \begin{center}
+    \begin{tabular}{ l || c | c || c | c | c | c | c }
+      N  & FIRST            & FOLLOW  & [                     & ] & a                     & ; & $ \$ $                       \\ \hline
+      S  & [, a             & $\$$, ] & $S \rightarrow L S'$  &   & $S \rightarrow L S'$  &   &                              \\
+      S' & ;, $\varepsilon$ & $\$$, ] & & $S' \rightarrow \varepsilon$ &   & $S' \rightarrow ; L S'$ & $S' \rightarrow \varepsilon$ \\
+      L  & [, a             & ;       & $L \rightarrow [S]$            & & $L \rightarrow a$ &                         &                              \\
+
+    \end{tabular}
+    \end{center}
+
+}
+
+\task {Осуществить синтаксический анализ алгоритмом LL(1) для 2 списков, содержащих не меньше 7 терминалов: один список должно быть корректным, другой --- нет. Для корректного списка приведите дерево вывода. Используйте грамматику, полученную в прошлом задании.}
+
+\proof {
+Строка a;[a;a]$\$$
+
+Стэк: \xout{$\$$} \xout{S} \xout{S'} \xout{L} \xout{a} \xout{S'} \xout{L} \xout{;} \xout{]} \xout{S} \xout{[} \xout{S'} \xout{L} \xout{a} \xout{S'} \xout{L} \xout{;} \xout{a}
+
+Дерево вывода:
+
+\begin{center}
+  \begin{forest}
+  	[S
+  		[L [a]]
+  		[S' [
+  				[;]
+  				[L
+  					[{[}]
+  					[S
+  						[L [a]]
+  						[S'
+  							[;]
+  							[L [a]]
+  							[S' [$\varepsilon$]]
+  						]
+  					]
+  					[{]}]
+  				]
+  				[S' [$\varepsilon$]]
+  			]
+  		]
+  	]
+  \end{forest}
+\end{center}
+
+Строка a;[a;a;]$\$$
+
+Стэк: $\$$ \xout{S} \xout{S'} \xout{L} \xout{a} S' \xout{L} \xout{;} ] \xout{S} \xout{[} \xout{S'} \xout{L} \xout{a} \xout{S'} \xout{L} \xout{;} \xout{a} S' L \xout{;}
+
+Так как ячейка (L, ]) - пуста, то строка некорректна
+}
+
+\task {
+    Реализовать парсер при помощи antlr4. За основу взять парсер для языка L, добавить в язык массивы. Массивы можно присваивать переменным. Также можно брать элемент массива по индексу и использовать в выражениях. Элементом массива может быть любое корректное выражение. Конкретный синтаксис для массивов придумайте сами.
+}
+
+\proof {
+Ссылка на репозиторий: https://github.com/TheShenk/formal-langs
+
+Массивы имеют следующий синтаксис: [<выражение1>, <выражение2>, <выражение3>]
+
+Корректные примеры:\\
+$[[1, 2, 3], [4, 5, 6], [7, 8, 9]]$\\
+$[1+2, 3-4, 5*6, 7/8, 9 \wedge 10, 11 == 12]$\\
+$[[[a[i]]]]$\\
+
+Некорректные примеры:\\
+$[[]]$\\
+$[[3]$\\
+$[a[i]$\\
+$[3; 4]$\\
+
+}
+
+\end{document}
